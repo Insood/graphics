@@ -42,7 +42,19 @@ func (t *Triangle) max_py() int {
 func (t *Triangle) normal() Vector3 {
 	v1 := t.p2.subtract(t.p1)
 	v2 := t.p3.subtract(t.p1)
-	return v2.cross(v1)
+	return v2.cross(v1).normalize()
+}
+
+// [!] This assumes that the triangle belongs to a sphere and that the points p1,p2,p3
+//     are points on the sphere and are effectively the normal
+func (t *Triangle) sphericalFaceNormal() Vector3 {
+	average_face_normal := Vector3{
+		(t.p1.x + t.p2.x + t.p3.x) / 3,
+		(t.p1.y + t.p2.y + t.p3.y) / 3,
+		(t.p1.z + t.p2.z + t.p3.z) / 3,
+	}
+
+	return average_face_normal.normalize()
 }
 
 func (t *Triangle) baryCentricCoordinates(p Point2Int) (bool, Point2) {

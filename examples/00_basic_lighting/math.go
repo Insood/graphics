@@ -26,6 +26,12 @@ func (v1 Vector2) cross(v2 Vector2) float64 {
 	return v1.x*v2.y - v1.y*v2.x
 }
 
+type Float3 struct {
+	x float64
+	y float64
+	z float64
+}
+
 type Point3 struct {
 	x float64
 	y float64
@@ -87,6 +93,14 @@ func (v1 Point3) subtract(v2 Point3) Vector3 {
 	}
 }
 
+func (v1 Vector3) subtract(v2 Vector3) Vector3 {
+	return Vector3{
+		v1.x - v2.x,
+		v1.y - v2.y,
+		v1.z - v2.z,
+	}
+}
+
 func (v1 Point2) subtract(v2 Point2) Vector2 {
 	return Vector2{
 		v1.x - v2.x,
@@ -101,49 +115,46 @@ func (v1 Point2Int) subtract(v2 Point2Int) Vector2Int {
 	}
 }
 
-// // return a new vector representing p1-p2
-// float[] subtract(float[] p1, float p2[])
-// {
-//   float[] result = new float[p1.length];
-//   for(int i = 0; i < p1.length; i++){
-//      result[i] = p1[i] - p2[i];
-//   }
+func (v Vector3) multiply(s float64) Vector3 {
+	return Vector3{
+		v.x * s,
+		v.y * s,
+		v.z * s,
+	}
+}
 
-//   return result;
-// }
+func (c Color3) multiply(s float64) Color3 {
+	return Color3{
+		c.r * s,
+		c.g * s,
+		c.b * s,
+	}
+}
 
-// int[] subtract(int[] p1, int p2[])
-// {
-//   int[] result = new int[p1.length];
-//   for(int i = 0; i < p1.length; i++){
-//      result[i] = p1[i] - p2[i];
-//   }
+func (c Color3) add(c2 Color3) Color3 {
+	return Color3{
+		c.r + c2.r,
+		c.g + c2.g,
+		c.b + c2.b,
+	}
+}
 
-//   return result;
-// }
+func (p Point3) add(v Vector3) Point3 {
+	return Point3{
+		p.x + v.x,
+		p.y + v.y,
+		p.z + v.z,
+	}
+}
 
-// float[] add(float[] p1, float[] p2) {
-//     float[] result = new float[p1.length];
-//   for(int i = 0; i < p1.length; i++){
-//      result[i] = p1[i] + p2[i];
-//   }
+func (v Vector3) add(v2 Vector3) Vector3 {
+	return Vector3{
+		v.x + v2.x,
+		v.y + v2.y,
+		v.z + v2.z,
+	}
+}
 
-//   return result;
-// }
-
-// int[] round(float[] arr){
-//   int[] result = new int[arr.length];
-//   for(int i =0; i< arr.length; i++){
-//     result[i] = int(arr[i]);
-//   }
-//   return result;
-// }
-
-// float[] multiply(float[] arr, float scalar){
-//   float[] result = new float[arr.length];
-//   for(int i =0; i < arr.length; i++){
-//     result[i] = arr[i]*scalar;
-//   }
-
-//   return result;
-// }
+func (p Point3) ToVector3() Vector3 {
+	return Vector3{p.x, p.y, p.z}
+}
