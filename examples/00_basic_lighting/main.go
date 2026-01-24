@@ -78,7 +78,7 @@ func (g *Game) Update() error {
 		return ebiten.Termination
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		g.rotate = !g.rotate
 	}
 
