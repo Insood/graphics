@@ -54,9 +54,9 @@ func (t *Triangle) normal() mymath.Vector3 {
 //	are points on the sphere and are effectively the normal
 func (t *Triangle) sphericalFaceNormal() mymath.Vector3 {
 	average_face_normal := mymath.Vector3{
-		(t.p1.X + t.p2.X + t.p3.X) / 3,
-		(t.p1.Y + t.p2.Y + t.p3.Y) / 3,
-		(t.p1.Z + t.p2.Z + t.p3.Z) / 3,
+		X: (t.p1.X + t.p2.X + t.p3.X) / 3,
+		Y: (t.p1.Y + t.p2.Y + t.p3.Y) / 3,
+		Z: (t.p1.Z + t.p2.Z + t.p3.Z) / 3,
 	}
 
 	return average_face_normal.Normalize()
@@ -77,15 +77,15 @@ func (t *Triangle) baryCentricCoordinates(p mymath.Vector2Int) (bool, mymath.Vec
 	u := float64(dot11*dot02-dot01*dot12) * invDenom
 	v := float64(dot00*dot12-dot01*dot02) * invDenom
 
-	return u >= 0 && v >= 0 && u+v <= 1, mymath.Vector2{u, v}
+	return u >= 0 && v >= 0 && u+v <= 1, mymath.Vector2{X: u, Y: v}
 }
 
 func makeSampleTriangle(size int) []*Triangle {
 	return []*Triangle{
 		newTriangle(
-			mymath.Vector3{float64(0), float64(size), float64(size)},
-			mymath.Vector3{float64(size), float64(-size), float64(size)},
-			mymath.Vector3{float64(-size), float64(-size), float64(size)},
+			mymath.Vector3{X: float64(0), Y: float64(size), Z: float64(size)},
+			mymath.Vector3{X: float64(size), Y: float64(-size), Z: float64(size)},
+			mymath.Vector3{X: float64(-size), Y: float64(-size), Z: float64(size)},
 		),
 	}
 }
@@ -113,10 +113,10 @@ func makeSphere(radius int, divisions int) []*Triangle {
 			z3 := float64(radius) * math.Sin(phi2) * math.Cos(theta2)
 			z4 := float64(radius) * math.Sin(phi2) * math.Cos(theta1)
 
-			pt1 := mymath.Vector3{x1, y12, z1}
-			pt2 := mymath.Vector3{x2, y12, z2}
-			pt3 := mymath.Vector3{x3, y34, z3}
-			pt4 := mymath.Vector3{x4, y34, z4}
+			pt1 := mymath.Vector3{X: x1, Y: y12, Z: z1}
+			pt2 := mymath.Vector3{X: x2, Y: y12, Z: z2}
+			pt3 := mymath.Vector3{X: x3, Y: y34, Z: z3}
+			pt4 := mymath.Vector3{X: x4, Y: y34, Z: z4}
 
 			switch phi_step {
 			case 0: // Top

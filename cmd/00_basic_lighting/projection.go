@@ -14,7 +14,7 @@ func Project(p mymath.Vector3) (mymath.Vector2, error) {
 	}
 	adjZ *= -1 // Absolute z value for division
 
-	return mymath.Vector2{p.X / (adjZ * perspective), p.Y / (adjZ * perspective)}, nil
+	return mymath.Vector2{X: p.X / (adjZ * perspective), Y: p.Y / (adjZ * perspective)}, nil
 }
 
 func Rotate(v *mymath.Vector3, theta float64) {

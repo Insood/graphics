@@ -21,11 +21,11 @@ const (
 	shininess        = 30
 )
 
-var LightSource = mymath.Vector3{200, 200, 350}
-var EyePosition = mymath.Vector3{0, 0, 600}
-var OutlineColor = mymath.Color3{1.0, 0.2, 0.5} // Red-ish
-var FillColor = mymath.Color3{1.0, 1.0, 1.0}
-var NormalColor = mymath.Color3{0.0, 1.0, 0.0}
+var LightSource = mymath.Vector3{X: 200, Y: 200, Z: 350}
+var EyePosition = mymath.Vector3{X: 0, Y: 0, Z: 600}
+var OutlineColor = mymath.Color3{R: 1.0, G: 0.2, B: 0.5} // Red-ish
+var FillColor = mymath.Color3{R: 1.0, G: 1.0, B: 1.0}
+var NormalColor = mymath.Color3{R: 0.0, G: 1.0, B: 0.0}
 
 const (
 	None = iota
@@ -167,7 +167,7 @@ func (g *Game) FillTriangle(t *Triangle) {
 
 	for y := maxy; y >= miny; y-- {
 		for x := minx; x <= maxx; x++ {
-			in_triangle, uv := t.baryCentricCoordinates(mymath.Vector2Int{x, y})
+			in_triangle, uv := t.baryCentricCoordinates(mymath.Vector2Int{X: x, Y: y})
 
 			if !in_triangle {
 				continue
@@ -177,7 +177,7 @@ func (g *Game) FillTriangle(t *Triangle) {
 			case Flat:
 				g.SetColor(FillColor)
 			case Barycentric:
-				g.SetColor(mymath.Color3{uv.X, uv.Y, 1 - uv.X - 1.*uv.Y})
+				g.SetColor(mymath.Color3{R: uv.X, G: uv.Y, B: 1 - uv.X - 1.*uv.Y})
 			case PhongFace:
 				g.SetColor(faceColor)
 			case PhongVertex:
@@ -210,9 +210,9 @@ func (g *Game) DrawOutline(t *Triangle) {
 
 func (g *Game) DrawNormal(t *Triangle) {
 	start := mymath.Vector3{
-		(t.p1.X + t.p2.X + t.p3.X) / 3,
-		(t.p1.Y + t.p2.Y + t.p3.Y) / 3,
-		(t.p1.Z + t.p2.Z + t.p3.Z) / 3,
+		X: (t.p1.X + t.p2.X + t.p3.X) / 3,
+		Y: (t.p1.Y + t.p2.Y + t.p3.Y) / 3,
+		Z: (t.p1.Z + t.p2.Z + t.p3.Z) / 3,
 	}
 
 	end := start.Add(t.normal().Multiply(20))
@@ -292,7 +292,7 @@ func (g *Game) DrawLine(start, end mymath.Vector2) {
 }
 
 func (g *Game) PhongLighting(normal mymath.Vector3) mymath.Color3 {
-	face_color := mymath.Color3{0.0, 0.0, 0.0}
+	face_color := mymath.Color3{R: 0.0, G: 0.0, B: 0.0}
 
 	ambient := FillColor.Multiply(ambientMaterial)
 	face_color = face_color.Add(ambient)
