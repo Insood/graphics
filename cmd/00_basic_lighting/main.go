@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	mymath "github.com/insood/graphics/internal/math"
 )
 
 const (
@@ -20,11 +21,11 @@ const (
 	shininess        = 30
 )
 
-var LightSource = Vector3{200, 200, 350}
-var EyePosition = Vector3{0, 0, 600}
-var OutlineColor = Color3{1.0, 0.2, 0.5} // Red-ish
-var FillColor = Color3{1.0, 1.0, 1.0}
-var NormalColor = Color3{0.0, 1.0, 0.0}
+var LightSource = mymath.Vector3{200, 200, 350}
+var EyePosition = mymath.Vector3{0, 0, 600}
+var OutlineColor = mymath.Color3{1.0, 0.2, 0.5} // Red-ish
+var FillColor = mymath.Color3{1.0, 1.0, 1.0}
+var NormalColor = mymath.Color3{0.0, 1.0, 0.0}
 
 const (
 	None = iota
@@ -40,7 +41,7 @@ type Game struct {
 	canvas           *ebiten.Image
 	triangles        []*Triangle // Original geometry
 	rotatedTriangles []*Triangle
-	currentColor     Color3
+	currentColor     mymath.Color3
 	theta            float64
 	rotate           bool
 	cullBackFaces    bool
@@ -63,7 +64,7 @@ func NewGame() *Game {
 		triangles:        tris,
 		rotatedTriangles: rotatedTriangles,
 		canvas:           ebiten.NewImage(screenWidth, screenHeight),
-		currentColor:     Color3{},
+		currentColor:     mymath.Color3{},
 		theta:            0,
 		rotate:           false,
 		cullBackFaces:    true,
@@ -120,7 +121,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(g.canvas, nil)
 }
 
-func (g *Game) SetColor(pixel_color Color3) {
+func (g *Game) SetColor(pixel_color mymath.Color3) {
 	g.currentColor = pixel_color
 }
 
@@ -132,9 +133,9 @@ func (g *Game) DrawTriangles() {
 }
 
 func (g *Game) DrawTriangle(t *Triangle) {
-	vecA := t.pp3.subtract(t.pp1)
-	vecB := t.pp2.subtract(t.pp1)
-	cross := vecA.cross(vecB)
+	vecA := t.pp3.Subtract(t.pp1)
+	vecB := t.pp2.Subtract(t.pp1)
+	cross := vecA.Cross(vecB)
 	if cross < 0 && g.cullBackFaces { // Backface culling
 		return
 	}
@@ -160,13 +161,13 @@ func (g *Game) FillTriangle(t *Triangle) {
 
 	faceColor := g.PhongLighting(t.normal())
 	averageVertexColor := g.PhongLighting(t.sphericalFaceNormal())
-	v1Color := g.PhongLighting(t.p1.ToVector3().normalize())
-	v2Color := g.PhongLighting(t.p2.ToVector3().normalize())
-	v3Color := g.PhongLighting(t.p3.ToVector3().normalize())
+	v1Color := g.PhongLighting(t.p1.Normalize())
+	v2Color := g.PhongLighting(t.p2.Normalize())
+	v3Color := g.PhongLighting(t.p3.Normalize())
 
 	for y := maxy; y >= miny; y-- {
 		for x := minx; x <= maxx; x++ {
-			in_triangle, uv := t.baryCentricCoordinates(Point2Int{x, y})
+			in_triangle, uv := t.baryCentricCoordinates(mymath.Vector2Int{x, y})
 
 			if !in_triangle {
 				continue
@@ -176,22 +177,22 @@ func (g *Game) FillTriangle(t *Triangle) {
 			case Flat:
 				g.SetColor(FillColor)
 			case Barycentric:
-				g.SetColor(Color3{uv.x, uv.y, 1 - uv.x - 1.*uv.y})
+				g.SetColor(mymath.Color3{uv.X, uv.Y, 1 - uv.X - 1.*uv.Y})
 			case PhongFace:
 				g.SetColor(faceColor)
 			case PhongVertex:
 				g.SetColor(averageVertexColor)
 			case PhongGourand:
-				a := v3Color.multiply(uv.x)
-				b := v2Color.multiply(uv.y)
-				c := v1Color.multiply(1 - uv.x - uv.y)
+				a := v3Color.Multiply(uv.X)
+				b := v2Color.Multiply(uv.Y)
+				c := v1Color.Multiply(1 - uv.X - uv.Y)
 
-				g.SetColor(a.add(b).add(c))
+				g.SetColor(a.Add(b).Add(c))
 			case PhongShading:
-				a := t.p1.ToVector3().multiply(1 - uv.x - uv.y)
-				b := t.p2.ToVector3().multiply(uv.y)
-				c := t.p3.ToVector3().multiply(uv.x)
-				normal := a.add(b).add(c).normalize()
+				a := t.p1.Multiply(1 - uv.X - uv.Y)
+				b := t.p2.Multiply(uv.Y)
+				c := t.p3.Multiply(uv.X)
+				normal := a.Add(b).Add(c).Normalize()
 				g.SetColor(g.PhongLighting(normal))
 			}
 
@@ -208,13 +209,13 @@ func (g *Game) DrawOutline(t *Triangle) {
 }
 
 func (g *Game) DrawNormal(t *Triangle) {
-	start := Point3{
-		(t.p1.x + t.p2.x + t.p3.x) / 3,
-		(t.p1.y + t.p2.y + t.p3.y) / 3,
-		(t.p1.z + t.p2.z + t.p3.z) / 3,
+	start := mymath.Vector3{
+		(t.p1.X + t.p2.X + t.p3.X) / 3,
+		(t.p1.Y + t.p2.Y + t.p3.Y) / 3,
+		(t.p1.Z + t.p2.Z + t.p3.Z) / 3,
 	}
 
-	end := start.add(t.normal().multiply(20))
+	end := start.Add(t.normal().Multiply(20))
 
 	screenStart, _ := Project(start)
 	screenEnd, _ := Project(end)
@@ -233,35 +234,35 @@ func (g *Game) DrawPixel(x, y int) {
 	}
 
 	pixelColor := color.RGBA{
-		uint8(math.Min(float64(255), math.Max(float64(0), g.currentColor.r*255))),
-		uint8(math.Min(float64(255), math.Max(float64(0), g.currentColor.g*255))),
-		uint8(math.Min(float64(255), math.Max(float64(0), g.currentColor.b*255))),
+		uint8(math.Min(float64(255), math.Max(float64(0), g.currentColor.R*255))),
+		uint8(math.Min(float64(255), math.Max(float64(0), g.currentColor.G*255))),
+		uint8(math.Min(float64(255), math.Max(float64(0), g.currentColor.B*255))),
 		255,
 	}
 
 	g.canvas.Set(x, y, pixelColor)
 }
 
-func (g *Game) DrawLine(start, end Point2) {
-	dx := end.x - start.x
-	dy := end.y - start.y
+func (g *Game) DrawLine(start, end mymath.Vector2) {
+	dx := end.X - start.X
+	dy := end.Y - start.Y
 	absdx := math.Abs(dx)
 	absdy := math.Abs(dy)
 
 	stepx := 1
-	if start.x > end.x {
+	if start.X > end.X {
 		stepx = -1
 	}
 
 	stepy := 1
-	if start.y > end.y {
+	if start.Y > end.Y {
 		stepy = -1
 	}
 
 	errY := 0.0
 	errX := 0.0
-	x := int(start.x)
-	y := int(start.y)
+	x := int(start.X)
+	y := int(start.Y)
 
 	// Line has more rise than run
 	if max(-dy, dy) > max(-dx, dx) {
@@ -290,23 +291,23 @@ func (g *Game) DrawLine(start, end Point2) {
 	}
 }
 
-func (g *Game) PhongLighting(normal Vector3) Color3 {
-	face_color := Color3{0.0, 0.0, 0.0}
+func (g *Game) PhongLighting(normal mymath.Vector3) mymath.Color3 {
+	face_color := mymath.Color3{0.0, 0.0, 0.0}
 
-	ambient := FillColor.multiply(ambientMaterial)
-	face_color = face_color.add(ambient)
+	ambient := FillColor.Multiply(ambientMaterial)
+	face_color = face_color.Add(ambient)
 
-	light_normal := LightSource.normalize()
-	diffuse_component := normal.dot(light_normal)
+	light_normal := LightSource.Normalize()
+	diffuse_component := normal.Dot(light_normal)
 
-	diffuse := FillColor.multiply(diffuse_component * diffuseMaterial)
-	face_color = face_color.add(diffuse)
+	diffuse := FillColor.Multiply(diffuse_component * diffuseMaterial)
+	face_color = face_color.Add(diffuse)
 
-	reflection := normal.multiply(2).multiply(LightSource.dot(normal)).subtract(LightSource)
-	specular_component := reflection.normalize().dot(EyePosition.normalize())
+	reflection := normal.Multiply(2).Multiply(LightSource.Dot(normal)).Subtract(LightSource)
+	specular_component := reflection.Normalize().Dot(EyePosition.Normalize())
 
-	specular := FillColor.multiply(specularMaterial * math.Pow(specular_component, shininess))
-	face_color = face_color.add(specular)
+	specular := FillColor.Multiply(specularMaterial * math.Pow(specular_component, shininess))
+	face_color = face_color.Add(specular)
 
 	return face_color
 }

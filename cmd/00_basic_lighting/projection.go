@@ -3,31 +3,33 @@ package main
 import (
 	"errors"
 	"math"
+
+	mymath "github.com/insood/graphics/internal/math"
 )
 
-func Project(p Point3) (Point2, error) {
-	adjZ := p.z - EyePosition.z // RHS, z negative into screen; relative to eye.z
+func Project(p mymath.Vector3) (mymath.Vector2, error) {
+	adjZ := p.Z - EyePosition.Z // RHS, z negative into screen; relative to eye.Z
 	if adjZ > 0 {
-		return Point2{}, errors.New("point is behind the camera")
+		return mymath.Vector2{}, errors.New("point is behind the camera")
 	}
 	adjZ *= -1 // Absolute z value for division
 
-	return Point2{p.x / (adjZ * perspective), p.y / (adjZ * perspective)}, nil
+	return mymath.Vector2{p.X / (adjZ * perspective), p.Y / (adjZ * perspective)}, nil
 }
 
-func Rotate(v *Point3, theta float64) {
-	rx := v.x*math.Cos(theta) - v.z*math.Sin(theta)
-	rz := v.x*math.Sin(theta) + v.z*math.Cos(theta)
-	v.x = rx
-	v.z = rz
+func Rotate(v *mymath.Vector3, theta float64) {
+	rx := v.X*math.Cos(theta) - v.Z*math.Sin(theta)
+	rz := v.X*math.Sin(theta) + v.Z*math.Cos(theta)
+	v.X = rx
+	v.Z = rz
 
-	rx = v.x*math.Cos(theta) - v.y*math.Sin(theta)
-	ry := v.x*math.Sin(theta) + v.y*math.Cos(theta)
-	v.x = rx
-	v.y = ry
+	rx = v.X*math.Cos(theta) - v.Y*math.Sin(theta)
+	ry := v.X*math.Sin(theta) + v.Y*math.Cos(theta)
+	v.X = rx
+	v.Y = ry
 
-	ry = v.y*math.Cos(theta) - v.z*math.Sin(theta)
-	rz = v.y*math.Sin(theta) + v.z*math.Cos(theta)
-	v.y = ry
-	v.z = rz
+	ry = v.Y*math.Cos(theta) - v.Z*math.Sin(theta)
+	rz = v.Y*math.Sin(theta) + v.Z*math.Cos(theta)
+	v.Y = ry
+	v.Z = rz
 }
